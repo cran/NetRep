@@ -50,17 +50,13 @@
 #' data_list <- list(discovery=discovery_data, test=test_data)
 #' correlation_list <- list(discovery=discovery_correlation, test=test_correlation)
 #' labels_list <- list(discovery=module_labels)
-#' 
-#' # How many permutations are required to Bonferroni adjust for the 4 modules 
-#' # in the example data? 
-#' nPerm <- requiredPerms(0.05/4) 
-#' 
+#'
 #' # Note that we recommend running at least 10,000 permutations to make sure 
 #' # that the null distributions are representative.
 #'
 #' preservation <- modulePreservation(
 #'  network=network_list, data=data_list, correlation=correlation_list, 
-#'  moduleAssignments=labels_list, nPerm=nPerm, discovery="discovery", 
+#'  moduleAssignments=labels_list, nPerm=1000, discovery="discovery", 
 #'  test="test"
 #' )
 #' 
@@ -71,7 +67,9 @@
 #' )
 #' 
 #' @aliases permutation permuted
-#' @name permutation
+#' @name permutationTest
+#' @importFrom statmod permp
+#' @keywords internal
 #' @export
 permutationTest <- function(
   nulls, observed, nVarsPresent, totalSize, alternative="greater"
@@ -168,23 +166,25 @@ permutationTest <- function(
   return(p.values)
 }
 
-#' Exact permutation p-values wrapper
-#' 
-#' Wrapper for \code{\link[statmod]{permp}} from the 
-#' \code{\link[statmod]{statmod}} library, which can crash if FORTRAN 
-#' libraries are not properly linked.
-#' 
-#' @details
-#' In the case \code{\link[statmod]{permp}} fails, the wrapper will fall back 
-#' to a slightly more conservative biased estimator: (1+x)/(1+nPerm).
-#' 
-#' @param x number of permutations that yielded test statistics at least as 
-#'  extreme as the observed data. May be a vector or an array of values. 
-#' @param nperm total number of permutations performed.
-#' @param ... other arguments to pass to\code{\link[statmod]{permp}}.
-#' @return 
-#'  vector or array of p-values, of same dimensions as \code{x}.
-#' @importFrom statmod permp
+### Exact permutation p-values wrapper
+### 
+### Wrapper for \code{\link[statmod]{permp}} from the 
+### \code{\link[statmod]{statmod}} library, which can crash if FORTRAN 
+### libraries are not properly linked.
+### 
+### @details
+### In the case \code{\link[statmod]{permp}} fails, the wrapper will fall back 
+### to a slightly more conservative biased estimator: (1+x)/(1+nPerm).
+### 
+### @param x number of permutations that yielded test statistics at least as 
+###  extreme as the observed data. May be a vector or an array of values. 
+### @param nperm total number of permutations performed.
+### @param ... other arguments to pass to\code{\link[statmod]{permp}}.
+### @return 
+###  vector or array of p-values, of same dimensions as \code{x}.
+###  
+### @importFrom statmod permp
+### @keywords internal
 permp <- function(x, nperm, ...) {
   tryCatch({
     return(statmod::permp(x, nperm, ...))
@@ -200,17 +200,41 @@ permp <- function(x, nperm, ...) {
   })
 }
 
-#' @description
-#'  \code{requiredPerms}:  how many permutations do I need to be able to detect
-#'  significance at a given threshold \code{alpha}?
+#' How many permutations do I need to test at my desired significance level?
 #' 
 #' @param alpha desired significance threshold.
-#' 
+#' @param alternative a character string specifying the alternative hypothesis, 
+#'  must be one of "greater" (default), "less", or "two.sided". 
+#'  You can specify just the initial letter.
+#'  
 #' @return The minimum number of permutations required to detect any significant
 #'  associations at the provided \code{alpha}. The minimum p-value will always
 #'  be smaller than \code{alpha}.
 #'  
-#' @rdname permutation
+#' @examples 
+#' data("NetRep")
+#' 
+#' # Set up input lists for each input matrix type across datasets. The list
+#' # elements can have any names, so long as they are consistent between the
+#' # inputs.
+#' network_list <- list(discovery=discovery_network, test=test_network)
+#' data_list <- list(discovery=discovery_data, test=test_data)
+#' correlation_list <- list(discovery=discovery_correlation, test=test_correlation)
+#' labels_list <- list(discovery=module_labels)
+#' 
+#' # How many permutations are required to Bonferroni adjust for the 4 modules 
+#' # in the example data? 
+#' nPerm <- requiredPerms(0.05/4) 
+#' 
+#' # Note that we recommend running at least 10,000 permutations to make sure 
+#' # that the null distributions are representative.
+#'
+#' preservation <- modulePreservation(
+#'  network=network_list, data=data_list, correlation=correlation_list, 
+#'  moduleAssignments=labels_list, nPerm=nPerm, discovery="discovery", 
+#'  test="test"
+#' )
+#' 
 #' @export
 requiredPerms <- function(alpha, alternative="greater") {
   validAlts <- c("two.sided", "less", "greater")
