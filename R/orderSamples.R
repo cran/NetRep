@@ -118,6 +118,10 @@ sampleOrder <- function(
   backgroundLabel="0", discovery=NULL, test=NULL, na.rm=FALSE, 
   simplify=TRUE, verbose=TRUE
 ) {
+  # always garbage collect before the function exits so any loaded 
+  # disk.matrices get unloaded as appropriate
+  on.exit({ gc() }, add = TRUE) 
+  
   #----------------------------------------------------------------------------
   # Input processing and sanity checking
   #----------------------------------------------------------------------------
@@ -131,26 +135,33 @@ sampleOrder <- function(
   finput <- processInput(discovery, test, network, correlation, data, 
                          moduleAssignments, modules, backgroundLabel,
                          verbose, "props")
-  # Get the loaded datasets
-  dataLoaded <- finput$dataLoaded
-  networkLoaded <- finput$networkLoaded
-  # remove from the finput list so that when we re-assign a new dataset the
-  # memory is freed.
-  finput$dataLoaded <- NULL
-  finput$correlationLoaded <- NULL
-  finput$networkLoaded <- NULL
-  
+  data <- finput$data
+  correlation <- finput$correlation
+  network <- finput$network
+  loadedIdx <- finput$loadedIdx
+  dataEnv <- finput$dataEnv
+  networkEnv <- finput$networkEnv
   discovery <- finput$discovery
   test <- finput$test
-  data <- finput$data
+  modules <- finput$modules
+  moduleAssignments <- finput$moduleAssignments
+  nDatasets <- finput$nDatasets
+  datasetNames <- finput$datasetNames
   
-  anyDM <- with(finput, {
-    any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
-                    network[[loadedIdx]])
-  })
+  # We don't want a second copy of these environments when we start 
+  # swapping datasets.
+  finput$dataEnv <- NULL
+  finput$networkEnv <- NULL
+  finput$correlationEnv <- NULL # unload the correlation matrix as well since we don't need it
+
+  
+  anyDM <- any.disk.matrix(data[[loadedIdx]], 
+                           correlation[[loadedIdx]], 
+                           network[[loadedIdx]])
   on.exit({
     vCat(verbose && anyDM, 0, "Unloading dataset from RAM...")
-    rm(dataLoaded, networkLoaded)
+    dataEnv$matrix <- NULL
+    networkEnv$matrix <- NULL
     gc()
   }, add=TRUE)
   
@@ -166,11 +177,10 @@ sampleOrder <- function(
   vCat(verbose, 0, "User input ok!")
   
   # Calculate the network properties
-  props <- with(finput, {
-    netPropsInternal(network, data, moduleAssignments, modules, discovery, 
-                     test, nDatasets, datasetNames, verbose, loadedIdx, 
-                     as.ref(dataLoaded), as.ref(networkLoaded), FALSE)
-  })
+  props <- netPropsInternal(network, data, moduleAssignments, 
+                            modules, discovery, test,
+                            nDatasets, datasetNames, verbose,
+                            loadedIdx, dataEnv, networkEnv, FALSE)
   anyDM <- FALSE
   
   res <- sampleOrderInternal(props, verbose, na.rm)

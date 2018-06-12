@@ -1,3 +1,168 @@
+2018-06-11  Scott Ritchie <sritchie73@gmail.com>
+
+  * DESCRIPTION: Release 1.2.1
+  
+  * Updated Date Field in DESCRIPTION.
+
+2018-06-11  Scott Ritchie <sritchie73@gmail.com>
+
+  * DESCRIPTION: Release 1.2.0
+  
+  * Removed dependency on the ref package, which is being archived.
+    The internal representation of the data, correlation, and network
+    matrix for the dataset loaded into RAM has been changed from a 
+    matrix (previously passed by reference between some functions 
+    using the ref package) to an environment that contains a variable
+    storing the matrix. By passing these environments between functions,
+    the loaded dataset can be changed within an internal function 
+    without the callee function creating a copy of the previously loaded
+    dataset to be restored on the completion of the function call.
+    
+  * Enhanced code clarity by removing use of with(), which in many 
+    instances made it unclear what scope variables were being
+    operated on due to conflicts between process user input in an 
+    environment variable and unprocessed user input in function arguments.
+  
+  * Added some minor optimisations to memory usage. The garbage collector
+    is now called at the end of each user exported function. This ensures
+    that any large matrices that have been loaded from disk are correctly
+    unloaded, even when a function returns an error due to malformed 
+    user input.
+  
+  * Reduced vignette file size by changing images from png to jpeg.
+  
+2017-08-15  Scott Ritchie <sritchie73@gmail.com>
+
+  * DESCRIPTION: Release 1.1.5
+  
+  * Bugfix to data heatmap and module summary bar charts: sample labels 
+    previously appeared in reverse order (i.e. did not correspond to the 
+    shown data). This has now been fixed.
+    
+  * Enhancement to data heatmap and module summary bar charts: Previously,
+    when specifying 'orderSampleBy' only samples present in both the 
+    plotted 'test' dataset and the 'orderSamplesBy' dataset were shown.
+    Now, samples present in the the plotted 'test' dataset but not present
+    in the 'orderSamplesBy' dataset are also shown on the data heatmap and
+    module summary bar charts. These are shown below the samples present 
+    in both dataset on both the data heatmap and module summary bar charts,
+    separated from the samples present in both datasets by a horizontal
+    black line. These samples appear ordered by their module summary values
+    in the 'test' dataset.
+    
+  * R/plot-utils.R: plotProps() now returns an additional value indicating 
+    the number of samples present in the 'test' dataset not present in the 
+    'orderSamplesBy' dataset.
+    
+  * R/plot-functions.R: plotSquareHeatmap() and plotMultiBar() now have an
+    additional argument, 'yLine', that tells both functions where to draw
+    a horizontal black line (i.e. to indicate separation of samples present
+    in both the 'orderSamplesBy' and 'test' dataset from those present only
+    in the 'test' dataset).
+    
+  * R/plot-functions.R: plotMultiBar() now shows sample labels in the 
+    correct order.
+    
+  * R/plot-module.R: plotModule() now keeps track of number of samples 
+    present only in the 'test' dataset to pass to plotSquareHeatamp()
+    and plotMultiBar().
+    
+  * R/plot-module.R: plotModule() now keeps track of number of samples 
+    present only in the 'test' dataset to pass to plotSquareHeatamp()
+    and plotMultiBar().
+    
+  * R/plot-topology.R plotData() and plotSummary() now keep track of 
+    number of samples present in the 'test' dataset to pass to 
+    plotSquareHeatmap() and plotMultiBar() respectively.
+  
+  
+2017-08-11  Scott Ritchie <sritchie73@gmail.com>
+  
+  * DESCRIPTION: Release 1.1.4
+  
+  * R/plot-functions.R: fixed bug in plotSquareHeatmap() that caused 'plotModule'
+   and 'plotData' to crash when specifying 'orderSamplesBy' when not all samples 
+   from the 'orderSamplesBy' dataset were present in the dataset to be rendered.
+   Similarly, this fixes bugs in 'plotCorrelation' and 'plotNetwork' arising when
+   setting 'symmetric=TRUE' when nodes from the discovery network were not present
+   in the test dataset to be rendered.
+    
+2017-08-04  Scott Ritchie <sritchie73@gmail.com>
+
+  * DESCRIPTION: Release 1.1.3
+  
+  * Fixed bug in module data heatmap legends: the range of values present on 
+    the legend is now restricted to the range of values present in the data 
+    heatmap when the data contains both positive and negative values. Previously
+    'plotModule' and 'plotData' would show legends for a range of values centered
+    at 0.
+    
+  * Fixed bug in module data heatmap legends: the range of values shown now respects
+    the values passed by the user in the 'dataRange' argument.
+    
+  * Fixed bug in gradient legends: the axis ticks at the lower or upper end of the
+    range specified by the user now have add "<" and ">" to the labels to reflect
+    values of that color may be outside the range shown.
+    
+  * R/plot-functions.R: 'addGradientLegend' now keeps separate track of the range 
+    of values present in the data, the range of values to be shown on the legend, 
+    and the range of values occupied by the color gradient used in the heatmap.
+    
+  * R/plot-functions.R: 'addGradientLegend' an axis tick will always be placed at 0
+    on the legend if the range of values on the corresponding heatmap can be both 
+    negative and positive.
+
+  * R/plot-functions.R: extra argument add to 'plotSquareHeatmap' and 'plotTriangleHeatmap'
+    to reflect separation of heatmap legend range from the range of values occupied by
+    the color palette used in the heatmap. Calls to these functions from 'plotModule',
+    'plotData', 'plotCorrelation', and 'plotNetwork' have been updated accordingly.
+    
+  * R/plot-module.R: added additional logic to 'plotModule' to separately determine the 
+    range of values present in the data, those to be shown on the data heatmap legend, and 
+    the range of values the heatmap palette occupies.
+    
+  * R/plot-topology.R: as above but for the 'plotData' function.
+    
+2017-08-03  Scott Ritchie <sritchie73@gmail.com>
+
+  * DESCRIPTION: Release 1.1.2
+  
+  * Clarified documentation for "backgroundLabel" argument used in many package
+    functions to describe how to disable the behaviour.
+    
+2017-08-03  Scott Ritchie <sritchie73@gmail.com>
+
+  * DESCRIPTION: Release 1.1.1
+  
+  * R/plot-module.R: Fixed bug where 'plotModule' would crash when attempting 
+    to plot a single module where only 1 node was present in the test dataset 
+    (e.g. where only 1 of the module's genes is expressed in the test cell-line).
+    
+  * R/plot-topology.R: Fixed same bug as above for 'plotCorrelation', 
+   'plotNetwork', and 'plotData'
+    
+2017-07-03  Scott Ritchie <sritchie73@gmail.com>
+
+  * DESCRIPTION: Release 1.1.0
+  
+  * R/modulePreservation.R: 'nPerm' argument may now be set to 0 to calculate
+    the module preservation statistics across two datasets while skipping 
+    the permutation test procedure.
+  
+  * src/permutations.cpp: reorganised code to return the observed test
+    statistics without performing the permutation test procedure when the
+    'nPerm' argument in modulePreservation() is set to 0.
+    
+  * src/permutationsNoData.cpp: reorganised code to return the observed test
+    statistics without performing the permutation test procedure when the
+    'nPerm' argument in modulePreservation() is set to 0.
+    
+  * man/modulePreservation.Rd: added description detailing the use case for
+    'nPerm=0'.
+    
+  * man/*: minor changes in all man files due to generation with roxygen 6.0.1
+    instead of roxygen 5.0.1.
+
 2016-11-15  Scott Ritchie <sritchie73@gmail.com>
 
    * DESCRIPTION: Release 1.0.4

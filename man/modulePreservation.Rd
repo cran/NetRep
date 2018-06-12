@@ -35,7 +35,8 @@ in each \code{discovery} dataset will be analysed, with the exception of
 those specified in \code{backgroundLabel} argument.}
 
 \item{backgroundLabel}{a single label given to nodes that do not belong to 
-any module in the \code{moduleAssignments} argument.}
+any module in the \code{moduleAssignments} argument. Defaults to "0". Set 
+to \code{NULL} if you do not want to skip the network background module.}
 
 \item{discovery}{a vector of names or indices denoting the \emph{discovery}
 dataset(s) in the \code{data}, \code{correlation}, \code{network}, 
@@ -54,7 +55,9 @@ properties over. Automatically determined as the number of cores - 1 if
 not specified.}
 
 \item{nPerm}{number of permutations to use. If not specified, the number of 
-permutations will be automatically determined (see details).}
+permutations will be automatically determined (see details). When set to 0
+the permutation procedure will be skipped and the observed module 
+preservation will be returned without p-values.}
 
 \item{null}{variables to include when generating the null distributions. 
 Must be either "overlap" or "all" (see details).}
@@ -420,4 +423,3 @@ Functions for:
   \link[=permutationTest]{calculating permutation test P-values}, and 
   \link[=combineAnalyses]{splitting computation over multiple machines}.
 }
-

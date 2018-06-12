@@ -16,7 +16,9 @@
 #'   properties over. Automatically determined as the number of cores - 1 if 
 #'   not specified.
 #' @param nPerm number of permutations to use. If not specified, the number of 
-#'  permutations will be automatically determined (see details).
+#'  permutations will be automatically determined (see details). When set to 0
+#'  the permutation procedure will be skipped and the observed module 
+#'  preservation will be returned without p-values.
 #' @param null variables to include when generating the null distributions. 
 #'  Must be either "overlap" or "all" (see details).
 #' @param alternative The type of module preservation test to perform. Must be 
@@ -377,6 +379,10 @@ modulePreservation <- function(
   nThreads=NULL, nPerm=NULL, null="overlap", alternative="greater", 
   simplify=TRUE, verbose=TRUE
 ) {
+  # always garbage collect before the function exits so any loaded 
+  # disk.matrices get unloaded as appropriate
+  on.exit({ gc() }, add = TRUE) 
+  
   #-----------------------------------------------------------------------------
   # Input processing and sanity checking
   #-----------------------------------------------------------------------------
@@ -398,8 +404,8 @@ modulePreservation <- function(
   
   # Validate 'nPerm'. If 'NULL', we need to process the rest of the input to
   # determine.
-  if (!is.null(nPerm) && (!is.numeric(nPerm) || length(nPerm) > 1 || nPerm < 1)) {
-    stop("'nPerm' must be a single number > 1")
+  if (!is.null(nPerm) && (!is.numeric(nPerm) || length(nPerm) > 1 || nPerm < 0)) {
+    stop("'nPerm' must be a single number >= 0")
   }
   
   # Validate 'nThreads'
@@ -457,14 +463,15 @@ modulePreservation <- function(
   datasetNames <- finput$datasetNames
   nodelist <- finput$nodelist
   loadedIdx <- finput$loadedIdx
-  dataLoaded <- finput$dataLoaded
-  correlationLoaded <- finput$correlationLoaded
-  networkLoaded <- finput$networkLoaded
+  dataEnv <- finput$dataEnv
+  correlationEnv <- finput$correlationEnv
+  networkEnv <- finput$networkEnv
   
-  # We don't want a second copy when we start swapping datasets.
-  finput$dataLoaded <- NULL
-  finput$correlationLoaded <- NULL
-  finput$networkLoaded <- NULL
+  # We don't want a second copy of these environments when we start 
+  # swapping datasets.
+  finput$dataEnv <- NULL
+  finput$correlationEnv <- NULL
+  finput$networkEnv <- NULL
   
   # If NULL, automatically determine.
   if (is.null(nPerm)) {
@@ -477,8 +484,8 @@ modulePreservation <- function(
 
   vCat(verbose, 0, "Input ok!")
   
-  if (!is.null(dataLoaded)) {
-    dataLoaded <- Scale(dataLoaded)
+  if (!is.null(dataEnv$matrix)) {
+    dataEnv$matrix <- Scale(dataEnv$matrix)
   }
   
   # Set up return list
@@ -548,20 +555,22 @@ modulePreservation <- function(
           anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                                    network[[loadedIdx]])
           vCat(verbose && anyDM, 1, "Unloading dataset from RAM...")
-          rm(dataLoaded, correlationLoaded, networkLoaded)
+          dataEnv$matrix <- NULL
+          correlationEnv$matrix <- NULL
+          networkEnv$matrix <- NULL
           gc()
           
           anyDM <- any.disk.matrix(data[[di]], correlation[[di]], network[[di]])
           vCat(verbose && anyDM, 1, 'Loading matrices of dataset "', 
                datasetNames[di], '" into RAM...', sep="")
           if (!is.null(data[[di]])) {
-            dataLoaded <- Scale(loadIntoRAM(data[[di]]))
+            dataEnv$matrix <- Scale(loadIntoRAM(data[[di]]))
             gc()
           } else {
-            dataLoaded <- NULL
+            dataEnv$matrix <- NULL
           }
-          correlationLoaded <- loadIntoRAM(correlation[[di]])
-          networkLoaded <- loadIntoRAM(network[[di]])
+          correlationEnv$matrix <- loadIntoRAM(correlation[[di]])
+          networkEnv$matrix <- loadIntoRAM(network[[di]])
           
           loadedIdx <- di
         }
@@ -571,12 +580,12 @@ modulePreservation <- function(
              datasetNames[di], '"...', sep="")
         if (is.null(data[[di]]) || is.null(data[[ti]])) {
           discProps <- IntermediatePropertiesNoData(
-            correlationLoaded, networkLoaded, nodelist[[ti]],
+            correlationEnv$matrix, networkEnv$matrix, nodelist[[ti]],
             moduleAssignments[[di]], modules[[di]]
           )
         } else {
           discProps <- IntermediateProperties(
-            dataLoaded, correlationLoaded, networkLoaded,
+            dataEnv$matrix, correlationEnv$matrix, networkEnv$matrix,
             nodelist[[ti]], moduleAssignments[[di]], modules[[di]]
           )
         }
@@ -590,20 +599,22 @@ modulePreservation <- function(
           anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                                    network[[loadedIdx]])
           vCat(verbose && anyDM, 1, "Unloading dataset from RAM...")
-          rm(dataLoaded, correlationLoaded, networkLoaded)
+          dataEnv$matrix <- NULL
+          correlationEnv$matrix <- NULL
+          networkEnv$matrix <- NULL
           gc()
           
           anyDM <- any.disk.matrix(data[[ti]], correlation[[ti]], network[[ti]])
           vCat(verbose && anyDM, 1, 'Loading matrices of dataset "', 
                datasetNames[ti], '" into RAM...', sep="")
           if (!is.null(data[[ti]])) {
-            dataLoaded <- Scale(loadIntoRAM(data[[ti]]))
+            dataEnv$matrix <- Scale(loadIntoRAM(data[[ti]]))
             gc()
           } else {
-            dataLoaded <- NULL
+            dataEnv$matrix <- NULL
           }
-          correlationLoaded <- loadIntoRAM(correlation[[ti]])
-          networkLoaded <- loadIntoRAM(network[[ti]])
+          correlationEnv$matrix <- loadIntoRAM(correlation[[ti]])
+          networkEnv$matrix <- loadIntoRAM(network[[ti]])
           
           loadedIdx <- ti
         }
@@ -611,30 +622,41 @@ modulePreservation <- function(
         # Run the permutation procedure
         if (is.null(data[[di]]) || is.null(data[[ti]])) {
           perms <- PermutationProcedureNoData(
-            discProps, correlationLoaded, networkLoaded, 
+            discProps, correlationEnv$matrix, networkEnv$matrix, 
             moduleAssignments[[di]], modules[[di]], nPerm, nThreads, model, 
             verbose, vCat
           )
         } else {
           perms <- PermutationProcedure(
-            discProps, dataLoaded, correlationLoaded, networkLoaded, 
+            discProps, dataEnv$matrix, correlationEnv$matrix, networkEnv$matrix, 
             moduleAssignments[[di]], modules[[di]], nPerm, nThreads, model, 
             verbose, vCat
           )
         }
         observed <- perms$observed
-        nulls <- perms$nulls
+        
+        if (nPerm > 0) {
+          nulls <- perms$nulls
+        } else {
+          nulls <- NULL
+        }
+        
         
         #---------------------------------------------------------------------
         # Calculate permutation p-value
         #---------------------------------------------------------------------
-        vCat(verbose, 1, "Calculating P-values...")
-        if (model == 'overlap') {
-          totalSize <- length(overlapVars)
+        if (nPerm > 0) {
+          vCat(verbose, 1, "Calculating P-values...")
+          if (model == 'overlap') {
+            totalSize <- length(overlapVars)
+          } else {
+            totalSize <- ncol(correlation[[ti]])
+          }
+          p.values <- permutationTest(nulls, observed, varsPres, totalSize, alternative)
         } else {
-          totalSize <- ncol(correlation[[ti]])
+          p.values <- NULL
+          totalSize <- NULL
         }
-        p.values <- permutationTest(nulls, observed, varsPres, totalSize, alternative)
         
         #---------------------------------------------------------------------
         # Collate results
@@ -669,7 +691,7 @@ modulePreservation <- function(
   anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                            network[[loadedIdx]])
   vCat(verbose && anyDM, 0, "Unloading dataset from RAM...")
-  rm(dataLoaded, correlationLoaded, networkLoaded)
+  rm(dataEnv, correlationEnv, networkEnv)
   gc()
   
   # Simplify the output data structure where possible

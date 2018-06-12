@@ -148,6 +148,10 @@ nodeOrder <- function(
   backgroundLabel="0", discovery=NULL, test=NULL, na.rm=FALSE, 
   orderModules=TRUE, mean=FALSE, simplify=TRUE, verbose=TRUE
 ) {
+  # always garbage collect before the function exits so any loaded 
+  # disk.matrices get unloaded as appropriate
+  on.exit({ gc() }, add = TRUE) 
+  
   #-----------------------------------------------------------------------------
   # Input processing and sanity checking
   #-----------------------------------------------------------------------------
@@ -170,61 +174,67 @@ nodeOrder <- function(
   finput <- processInput(discovery, test, network, correlation, data, 
                          moduleAssignments, modules, backgroundLabel,
                          verbose, "props")
-  # Get the loaded datasets
-  dataLoaded <- finput$dataLoaded
-  networkLoaded <- finput$networkLoaded
-  # remove from the finput list so that when we re-assign a new dataset the
-  # memory is freed.
-  finput$dataLoaded <- NULL
-  finput$correlationLoaded <- NULL
-  finput$networkLoaded <- NULL
+  data <- finput$data
+  correlation <- finput$correlation
+  network <- finput$network
+  loadedIdx <- finput$loadedIdx
+  dataEnv <- finput$dataEnv
+  networkEnv <- finput$networkEnv
+  discovery <- finput$discovery
+  test <- finput$test
+  modules <- finput$modules
+  moduleAssignments <- finput$moduleAssignments
+  nDatasets <- finput$nDatasets
+  datasetNames <- finput$datasetNames
   
-  anyDM <- with(finput, {
-    any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
-                    network[[loadedIdx]])
-  })
+  # We don't want a second copy of these environments when we start 
+  # swapping datasets.
+  finput$dataEnv <- NULL
+  finput$networkEnv <- NULL
+  finput$correlationEnv <- NULL # unload the correlation matrix as well since we don't need it
+
+  
+  anyDM <- any.disk.matrix(data[[loadedIdx]], 
+                           correlation[[loadedIdx]], 
+                           network[[loadedIdx]])
   on.exit({
     vCat(verbose && anyDM, 0, "Unloading dataset from RAM...")
-    rm(dataLoaded, networkLoaded)
+    dataEnv$matrix <- NULL
+    networkEnv$matrix <- NULL
     gc()
   }, add=TRUE)
   
   # If 'orderModules' is TRUE we need to make sure that there is data in each 
   # test dataset if there is more than one 'module'
-  with(finput, {
-    if (orderModules) {
-      for (di in discovery) {
-        for (ti in test[[di]]) {
-          if (is.null(data[[ti]]) && length(modules[[di]]) > 1) {
-            stop("'data' must be provided for all 'test' datasets ",
-                 "if 'orderModules' is TRUE")
-          }   
-        }
+  if (orderModules) {
+    for (di in discovery) {
+      for (ti in test[[di]]) {
+        if (is.null(data[[ti]]) && length(modules[[di]]) > 1) {
+          stop("'data' must be provided for all 'test' datasets ",
+               "if 'orderModules' is TRUE")
+        }   
       }
     }
-  })
-  
+  }
+
   vCat(verbose, 0, "User input ok!")
   
   # Similarly when 'orderModules = TRUE' but there is only one module (per test)
   # Then we can save time by not calculating the data-based network properties.
   # We can't detect this without sanity checking the user input first though, so
   # datasets may have been loaded
-  with(finput, {
-    for (di in discovery) {
-      if (length(modules[[di]]) == 1) {
-        data[di] <- list(NULL)
-        dataLoaded <- NULL
-      }
+  for (di in discovery) {
+    if (length(modules[[di]]) == 1) {
+      data[di] <- list(NULL)
+      dataEnv$matrix <- NULL
     }
-  })
+  }
   
   # Calculate the network properties
-  props <- with(finput, {
-    netPropsInternal(network, data, moduleAssignments, modules, discovery, 
-                     test, nDatasets, datasetNames, verbose, loadedIdx, 
-                     as.ref(dataLoaded), as.ref(networkLoaded), FALSE)
-  })
+  props <- netPropsInternal(network, data, moduleAssignments, 
+                            modules, discovery, test,
+                            nDatasets, datasetNames, verbose,
+                            loadedIdx, dataEnv, networkEnv, FALSE)
   anyDM <- FALSE
   
   res <- nodeOrderInternal(

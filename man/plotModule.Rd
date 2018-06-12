@@ -44,7 +44,8 @@ in each \code{discovery} dataset will be analysed, with the exception of
 those specified in \code{backgroundLabel} argument.}
 
 \item{backgroundLabel}{a single label given to nodes that do not belong to 
-any module in the \code{moduleAssignments} argument.}
+any module in the \code{moduleAssignments} argument. Defaults to "0". Set 
+to \code{NULL} if you do not want to skip the network background module.}
 
 \item{discovery}{a vector of names or indices denoting the \emph{discovery}
 dataset(s) in the \code{data}, \code{correlation}, \code{network}, 
@@ -277,8 +278,11 @@ Individual components of the module plot can be plotted using
   from multiple tissues samples across the same individuals. If the dataset 
   specified is the \code{discovery} dataset, then missing samples will be 
   displayed as horizontal grey bars. If the dataset specified is one of the 
-  other datasets, then only samples present in both the specified dataset 
-  and the \code{test} dataset will be displayed.
+  other datasets, samples present in both the specified dataset and the 
+  \code{test} dataset will be displayed first in order of the specified 
+  dataset, then samples present in only the test dataset will be displayed
+  underneath a horizontal black line ordered by their module summary vector 
+  in the test dataset.
    
   Order of samples by \emph{module summary} can be suppressed by setting 
   \code{orderSamplesBy} to \code{NA}, in which case samples will be order as
@@ -484,4 +488,3 @@ plotModule(
 \code{\link{plotData}}, and
 \code{\link{plotSummary}}.
 }
-
