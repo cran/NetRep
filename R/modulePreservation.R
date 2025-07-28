@@ -33,7 +33,7 @@
 #'   from the data used to infer those networks (e.g. gene expression data) as
 #'   well as the correlation structure between variables/nodes. Thus, all
 #'   functions in the \code{NetRep} package have the following arguments:
-#'   \itemize{
+#'   \describe{
 #'     \item{\code{network}:}{
 #'       a list of interaction networks, one for each dataset.
 #'     }
@@ -296,7 +296,7 @@
 #'  element per \code{'test'} dataset analysed for that \code{'discovery'} 
 #'  dataset. Each of these elements is also a list, containing the following
 #'  objects:
-#'  \itemize{
+#'  \describe{
 #'    \item{\code{observed}:}{
 #'      A matrix of the observed values for the module preservation statistics.
 #'      Rows correspond to modules, and columns to the module preservation
@@ -552,7 +552,7 @@ modulePreservation <- function(
         
         if (di != loadedIdx) {
           # Unload previous dataset
-          anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
+          anyDM <- check.any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                                    network[[loadedIdx]])
           vCat(verbose && anyDM, 1, "Unloading dataset from RAM...")
           dataEnv$matrix <- NULL
@@ -560,7 +560,7 @@ modulePreservation <- function(
           networkEnv$matrix <- NULL
           gc()
           
-          anyDM <- any.disk.matrix(data[[di]], correlation[[di]], network[[di]])
+          anyDM <- check.any.disk.matrix(data[[di]], correlation[[di]], network[[di]])
           vCat(verbose && anyDM, 1, 'Loading matrices of dataset "', 
                datasetNames[di], '" into RAM...', sep="")
           if (!is.null(data[[di]])) {
@@ -596,7 +596,7 @@ modulePreservation <- function(
         # Load matrices into RAM if they are 'disk.matrix' objects.
         if (ti != loadedIdx) {
           # Unload previous dataset
-          anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
+          anyDM <- check.any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                                    network[[loadedIdx]])
           vCat(verbose && anyDM, 1, "Unloading dataset from RAM...")
           dataEnv$matrix <- NULL
@@ -604,7 +604,7 @@ modulePreservation <- function(
           networkEnv$matrix <- NULL
           gc()
           
-          anyDM <- any.disk.matrix(data[[ti]], correlation[[ti]], network[[ti]])
+          anyDM <- check.any.disk.matrix(data[[ti]], correlation[[ti]], network[[ti]])
           vCat(verbose && anyDM, 1, 'Loading matrices of dataset "', 
                datasetNames[ti], '" into RAM...', sep="")
           if (!is.null(data[[ti]])) {
@@ -688,7 +688,7 @@ modulePreservation <- function(
     }
   }
   # Free up memory
-  anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
+  anyDM <- check.any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                            network[[loadedIdx]])
   vCat(verbose && anyDM, 0, "Unloading dataset from RAM...")
   rm(dataEnv, correlationEnv, networkEnv)

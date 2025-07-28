@@ -1,4 +1,4 @@
-## ---- echo=FALSE, cache=FALSE---------------------------------------------------------------------
+## ----echo=FALSE, cache=FALSE----------------------------------------------------------------------
 options(width = 100)
 
 ## -------------------------------------------------------------------------------------------------
@@ -36,27 +36,27 @@ preservation$p.value
 max_pval <- apply(preservation$p.value, 1, max)
 max_pval
 
-## ---- eval=FALSE----------------------------------------------------------------------------------
-#  # Handling NA entries in the 'cor.degree' null distribution for sparse networks
-#  
-#  # Get the entries in the null distribution where there were no edges in the
-#  # permuted module
-#  na.entries <- which(is.na(preservation$nulls[,'cor.degree',]))
-#  no.edges <- which(preservation$nulls[,'avg.weight',][na.entries] == 0)
-#  
-#  # Set those entries to 0
-#  preservation$nulls[,'cor.degree',][no.edges] <- 0
-#  
-#  # Recalculate the permutation test p-values
-#  preservation$p.values <- permutationTest(
-#    preservation$nulls, preservation$observed, preservation$nVarsPresent,
-#    preservation$totalSize, preservation$alternative
-#  )
+## ----eval=FALSE-----------------------------------------------------------------------------------
+# # Handling NA entries in the 'cor.degree' null distribution for sparse networks
+# 
+# # Get the entries in the null distribution where there were no edges in the
+# # permuted module
+# na.entries <- which(is.na(preservation$nulls[,'cor.degree',]))
+# no.edges <- which(preservation$nulls[,'avg.weight',][na.entries] == 0)
+# 
+# # Set those entries to 0
+# preservation$nulls[,'cor.degree',][no.edges] <- 0
+# 
+# # Recalculate the permutation test p-values
+# preservation$p.values <- permutationTest(
+#   preservation$nulls, preservation$observed, preservation$nVarsPresent,
+#   preservation$totalSize, preservation$alternative
+# )
 
-## ---- eval=FALSE----------------------------------------------------------------------------------
-#  not.present <- which(discovery_data == 0)
-#  nSamples <- nrow(discovery_data)
-#  discovery_data[not.present] <- runif(length(not.present), min=0, max=1/nSamples)
+## ----eval=FALSE-----------------------------------------------------------------------------------
+# not.present <- which(discovery_data == 0)
+# nSamples <- nrow(discovery_data)
+# discovery_data[not.present] <- runif(length(not.present), min=0, max=1/nSamples)
 
 ## ----modules_in_discovery, dev="jpeg", dev.args=list(quality=50),  dpi=72, fig.height=7, fig.width=7, fig.align="center", results="hold", fig.keep="last", fig.show="hold"----
 plotModule(
@@ -153,7 +153,7 @@ properties[["cohort1"]][["1"]][["coherence"]]
 properties[["cohort2"]][["1"]][["summary"]]
 properties[["cohort2"]][["1"]][["coherence"]]
 
-## ---- echo=FALSE, message=FALSE, results="hide"---------------------------------------------------
+## ----echo=FALSE, message=FALSE, results="hide"----------------------------------------------------
 # This is the code necessary for the later part of this section to run.
 # The vignette doesnt actually save the data.
 discovery_data <- as.disk.matrix(discovery_data, tempfile())
@@ -163,53 +163,53 @@ test_data <- as.disk.matrix(test_data, tempfile())
 test_correlation <- as.disk.matrix(test_correlation, tempfile())
 test_network <- as.disk.matrix(test_network, tempfile())
 
-## ---- eval=FALSE----------------------------------------------------------------------------------
-#  # serialize=TRUE will save the data using 'saveRDS'.
-#  # serialize=FALSE will save the data as a tab-separated file ('sep="\t"').
-#  discovery_data <- as.disk.matrix(
-#    x=discovery_data,
-#    file="discovery_data.rds",
-#    serialize=TRUE)
-#  discovery_correlation <- as.disk.matrix(
-#    x=discovery_correlation,
-#    file="discovery_correlation.rds",
-#    serialize=TRUE)
-#  discovery_network <- as.disk.matrix(
-#    x=discovery_network,
-#    file="discovery_network.rds",
-#    serialize=TRUE)
-#  test_data <- as.disk.matrix(
-#    x=test_data,
-#    file="test_data.rds",
-#    serialize=TRUE)
-#  test_correlation <- as.disk.matrix(
-#    x=test_correlation,
-#    file="test_correlation.rds",
-#    serialize=TRUE)
-#  test_network <- as.disk.matrix(
-#    x=test_network,
-#    file="test_network.rds",
-#    serialize=TRUE)
+## ----eval=FALSE-----------------------------------------------------------------------------------
+# # serialize=TRUE will save the data using 'saveRDS'.
+# # serialize=FALSE will save the data as a tab-separated file ('sep="\t"').
+# discovery_data <- as.disk.matrix(
+#   x=discovery_data,
+#   file="discovery_data.rds",
+#   serialize=TRUE)
+# discovery_correlation <- as.disk.matrix(
+#   x=discovery_correlation,
+#   file="discovery_correlation.rds",
+#   serialize=TRUE)
+# discovery_network <- as.disk.matrix(
+#   x=discovery_network,
+#   file="discovery_network.rds",
+#   serialize=TRUE)
+# test_data <- as.disk.matrix(
+#   x=test_data,
+#   file="test_data.rds",
+#   serialize=TRUE)
+# test_correlation <- as.disk.matrix(
+#   x=test_correlation,
+#   file="test_correlation.rds",
+#   serialize=TRUE)
+# test_network <- as.disk.matrix(
+#   x=test_network,
+#   file="test_network.rds",
+#   serialize=TRUE)
 
-## ---- eval=FALSE----------------------------------------------------------------------------------
-#  test_network
+## ----eval=FALSE-----------------------------------------------------------------------------------
+# test_network
 
-## ---- echo=FALSE----------------------------------------------------------------------------------
+## ----echo=FALSE-----------------------------------------------------------------------------------
 cat("Pointer to matrix stored at test_network.rds\n")
 
 ## -------------------------------------------------------------------------------------------------
 as.matrix(test_network)[1:5, 1:5]
 
-## ---- eval=FALSE----------------------------------------------------------------------------------
-#  # If files are saved as tables, set 'serialized=FALSE' and specify arguments
-#  # that would normally be provided to 'read.table'. Note: this function doesnt
-#  # check whether the file can actually be read in as a matrix!
-#  discovery_data <- attach.disk.matrix("discovery_data.rds")
-#  discovery_correlation <- attach.disk.matrix("discovery_correlation.rds")
-#  discovery_network <- attach.disk.matrix("discovery_network.rds")
-#  test_data <- attach.disk.matrix("test_data.rds")
-#  test_correlation <- attach.disk.matrix("test_correlation.rds")
-#  test_network <- attach.disk.matrix("test_network.rds")
+## ----eval=FALSE-----------------------------------------------------------------------------------
+# # If files are saved as tables, set 'serialized=FALSE' and specify arguments
+# # that would normally be provided to 'read.table'. Note: this function doesnt
+# # check whether the file can actually be read in as a matrix!
+# discovery_data <- attach.disk.matrix("discovery_data.rds")
+# discovery_correlation <- attach.disk.matrix("discovery_correlation.rds")
+# discovery_network <- attach.disk.matrix("discovery_network.rds")
+# test_data <- attach.disk.matrix("test_data.rds")
+# test_correlation <- attach.disk.matrix("test_correlation.rds")
+# test_network <- attach.disk.matrix("test_network.rds")
 
 ## -------------------------------------------------------------------------------------------------
 data_list <- list(cohort1=discovery_data, cohort2=test_data)
@@ -266,7 +266,7 @@ plotModule(
   orderNodesBy=NA, orderSamplesBy=NA
 )
 
-## ---- echo=FALSE, hold=TRUE-----------------------------------------------------------------------
+## ----echo=FALSE, hold=TRUE------------------------------------------------------------------------
 cat(
 "[2016-06-14 17:25:16 AEST] Validating user input...\n",
 "[2016-06-14 17:25:16 AEST]   Loading matrices of dataset \"liver\" into RAM...\n",

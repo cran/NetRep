@@ -16,7 +16,7 @@
 #'   gene expression data) as well as the correlation structure between 
 #'   variables/nodes. Thus, all functions in the \code{NetRep} package have the 
 #'   following arguments: 
-#'   \itemize{
+#'   \describe{
 #'     \item{\code{network}:}{
 #'       a list of interaction networks, one for each dataset.
 #'     }
@@ -73,7 +73,7 @@
 #'  dataset. Each of these elements is a list that has one element per 
 #'  \code{'modules'} specified. Each of these is a list containing the following  
 #'  objects:
-#'  \itemize{
+#'  \describe{
 #'    \item{\code{'degree'}:}{
 #'      The weighted within-module degree: the sum of edge weights for each 
 #'      node in the module.
@@ -84,7 +84,7 @@
 #'  }
 #'  If the \code{'data'} used to infer the \code{'test'} network is provided  
 #'  then the following are also returned:
-#'  \itemize{
+#'  \describe{
 #'    \item{\code{'summary'}:}{
 #'      A vector summarising the module across each sample. This is calculated 
 #'      as the first eigenvector of the module from a principal component 
@@ -180,7 +180,7 @@ networkProperties <- function(
   finput$correlationEnv <- NULL # unload the correlation matrix as well since we don't need it
   
   vCat(verbose, 0, "User input ok!")
-  anyDM <- any.disk.matrix(data[[loadedIdx]], 
+  anyDM <- check.any.disk.matrix(data[[loadedIdx]], 
                            correlation[[loadedIdx]], 
                            network[[loadedIdx]])
   on.exit({
@@ -271,14 +271,14 @@ netPropsInternal <- function(
   foreach(ti = requested) %do% {
     if (ti != loadedIdx) {
       # unload previous dataset from RAM
-      anyDM <- any.disk.matrix(data[[loadedIdx]], network[[loadedIdx]])
+      anyDM <- check.any.disk.matrix(data[[loadedIdx]], network[[loadedIdx]])
       vCat(verbose && anyDM, 0, "Unloading dataset from RAM...")
       dataEnv$matrix <- NULL 
       networkEnv$matrix <- NULL
       gc()
       
       # Load matrices into RAM if they are 'disk.matrix' objects.
-      anyDM <- any.disk.matrix(data[[ti]], network[[ti]])
+      anyDM <- check.any.disk.matrix(data[[ti]], network[[ti]])
       vCat(verbose && anyDM, 0, 'Loading matrices of dataset "',
            datasetNames[ti], '" into RAM...', sep="")
       dataEnv$matrix <- loadIntoRAM(data[[ti]])
@@ -310,7 +310,7 @@ netPropsInternal <- function(
   
   if (!keepLast) {
     # unload previous dataset from RAM
-    anyDM <- any.disk.matrix(data[[loadedIdx]], network[[loadedIdx]])
+    anyDM <- check.any.disk.matrix(data[[loadedIdx]], network[[loadedIdx]])
     vCat(verbose && anyDM, 0, "Unloading dataset from RAM...")
     dataEnv$matrix <- NULL
     networkEnv$matrix <- NULL

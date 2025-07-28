@@ -25,7 +25,7 @@
 #'   gene expression data) as well as the correlation structure between 
 #'   variables/nodes. Thus, all functions in the \code{NetRep} package have the 
 #'   following arguments: 
-#'   \itemize{
+#'   \describe{
 #'     \item{\code{network}:}{
 #'       a list of interaction networks, one for each dataset.
 #'     }
@@ -194,7 +194,7 @@ nodeOrder <- function(
   finput$correlationEnv <- NULL # unload the correlation matrix as well since we don't need it
 
   
-  anyDM <- any.disk.matrix(data[[loadedIdx]], 
+  anyDM <- check.any.disk.matrix(data[[loadedIdx]], 
                            correlation[[loadedIdx]], 
                            network[[loadedIdx]])
   on.exit({

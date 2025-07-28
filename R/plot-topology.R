@@ -26,7 +26,7 @@
 #'   gene expression data) as well as the correlation structure between 
 #'   variables/nodes. Thus, all functions in the \code{NetRep} package have the 
 #'   following arguments: 
-#'   \itemize{
+#'   \describe{
 #'     \item{\code{network}:}{
 #'       a list of interaction networks, one for each dataset.
 #'     }
@@ -157,7 +157,7 @@
 #'   
 #'   The size of text labels can be modified by increasing or decreasing the
 #'   \code{cex.main}, \code{cex.lab}, and \code{cex.axis} arguments:
-#'   \itemize{
+#'   \describe{
 #'    \item{\code{cex.main}: }{controls the size of the plot title (specified 
 #'                            in the \code{main} argument).}
 #'    \item{\code{cex.lab}: }{controls the size of the axis labels on the
@@ -171,7 +171,7 @@
 #'   
 #'   The position of these labels can be changed through the following 
 #'   arguments:
-#'   \itemize{
+#'   \describe{
 #'    \item{\code{xaxt.line}: }{controls the distance from the plot the x-axis
 #'          tick labels are drawn on the \emph{module summary} bar plot.}
 #'    \item{\code{xlab.line}: }{controls the distance from the plot the x-axis 
@@ -202,7 +202,7 @@
 #'   
 #'   The size of the axis ticks can be changed by increasing or decreasing the
 #'   following arguments:
-#'   \itemize{
+#'   \describe{
 #'    \item{\code{xaxt.tck}: }{size of the x-axis tick labels as a multiple of
 #'          the height of the \emph{module summary} bar plot}
 #'    \item{\code{yaxt.tck}: }{size of the y-axis tick labels as a multiple of 
@@ -214,7 +214,7 @@
 #'   }
 #'   
 #'   The placement of heatmap legends is controlled by the following arguments:
-#'   \itemize{
+#'   \describe{
 #'    \item{\code{plotLegend}: }{if \code{FALSE} legend will not be drawn.}
 #'    \item{\code{legend.position}: }{a multiple of the plot width, controls 
 #'      the horizontal distance from the plot the legend is drawn.}
@@ -479,7 +479,7 @@ plotData <- function(
   nNewSamples <- plotProps$nNewSamples
   
   # flag for previous on.exit
-  anyDM <- any.disk.matrix(data[[ti]], network[[ti]])
+  anyDM <- check.any.disk.matrix(data[[ti]], network[[ti]])
   
   #-----------------------------------------------------------------------------
   # Set default values for 'NULL' arguments
@@ -652,7 +652,7 @@ plotCorrelation <- function(
   finput$networkEnv <- NULL
   
   # Flag for on.exit
-  anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
+  anyDM <- check.any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                            network[[loadedIdx]])
   
   on.exit({
@@ -684,7 +684,7 @@ plotCorrelation <- function(
   presentNodes <- plotProps$presentNodes
   
   # flag for on.exit
-  anyDM <- any.disk.matrix(data[[ti]], correlation[[ti]], network[[ti]])
+  anyDM <- check.any.disk.matrix(data[[ti]], correlation[[ti]], network[[ti]])
   
   if (ti != loadedIdx) {
     vCat(verbose && is.disk.matrix(correlation[[ti]]), 0, 
@@ -846,7 +846,7 @@ plotNetwork <- function(
   finput$networkEnv <- NULL
   
   # Flag for on.exit
-  anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
+  anyDM <- check.any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                            network[[loadedIdx]])
   
   on.exit({
@@ -879,7 +879,7 @@ plotNetwork <- function(
   presentNodes <- plotProps$presentNodes
 
   # flag for on.exit  
-  anyDM <- any.disk.matrix(data[[ti]], network[[ti]])
+  anyDM <- check.any.disk.matrix(data[[ti]], network[[ti]])
 
   #-----------------------------------------------------------------------------
   # Set default values for 'NULL' arguments
@@ -1032,7 +1032,7 @@ plotContribution <- function(
   finput$networkEnv <- NULL
   
   # Flag for on.exit
-  anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
+  anyDM <- check.any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                            network[[loadedIdx]])
   
   on.exit({
@@ -1064,7 +1064,7 @@ plotContribution <- function(
   moduleOrder <- plotProps$moduleOrder
   
   # flag for on.exit
-  anyDM <- any.disk.matrix(data[[ti]], network[[ti]])
+  anyDM <- check.any.disk.matrix(data[[ti]], network[[ti]])
   
   #-----------------------------------------------------------------------------
   # Set default values for 'NULL' arguments
@@ -1179,7 +1179,7 @@ plotDegree <- function(
   finput$networkEnv <- NULL
   
   # Flag for on.exit
-  anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
+  anyDM <- check.any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                            network[[loadedIdx]])
   
   on.exit({
@@ -1210,7 +1210,7 @@ plotDegree <- function(
   moduleOrder <- plotProps$moduleOrder
   
   # flag for on.exit
-  anyDM <- any.disk.matrix(data[[ti]], network[[ti]])
+  anyDM <- check.any.disk.matrix(data[[ti]], network[[ti]])
   
   #-----------------------------------------------------------------------------
   # Set default values for 'NULL' arguments
@@ -1330,7 +1330,7 @@ plotSummary <- function(
   finput$networkEnv <- NULL
   
   # Flag for on.exit
-  anyDM <- any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
+  anyDM <- check.any.disk.matrix(data[[loadedIdx]], correlation[[loadedIdx]], 
                            network[[loadedIdx]])
   
   on.exit({
@@ -1365,7 +1365,7 @@ plotSummary <- function(
   nNewSamples <- plotProps$nNewSamples
   
   # Flag for on.exit
-  anyDM <- any.disk.matrix(data[[ti]], network[[ti]])
+  anyDM <- check.any.disk.matrix(data[[ti]], network[[ti]])
   
   #-----------------------------------------------------------------------------
   # Set default values for 'NULL' arguments
