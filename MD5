@@ -1,5 +1,5 @@
-fb88abbb0b6ff5cc875c5b6dcaf1f8b8 *ChangeLog
-50ffe2c154ed64c68ffdbe52ad255cc7 *DESCRIPTION
+74c709fe4bea9ab98dc72e0e1d8a8967 *ChangeLog
+ecf43ae7c363c2924627387fc5bc565e *DESCRIPTION
 914b93ac77c2eb554a24ea4e09d53304 *NAMESPACE
 fe756da73cbe5c788192b3ecfa24e84a *R/NetRep.R
 7eed5212465a6865a93a062ddc2d2cf8 *R/RcppExports.R
@@ -24,7 +24,7 @@ b644c3636abe4abdfd78164dad87ff56 *R/utils.R
 c536bd1266cb482784e444933a92c77e *inst/CITATION
 c2e0553fe4da323aa9c7926a39885691 *inst/doc/NetRep.R
 a99df83d7de17a3203796315f0d6f945 *inst/doc/NetRep.Rmd
-401e8f458b0c0e4098db95da5b0d7db0 *inst/doc/NetRep.html
+91cf5ac7175338dc4d112f03f8dfd7d1 *inst/doc/NetRep.html
 7f76eddb46699f76316877e07b74b7c3 *man/NetRep.Rd
 f899ba1ed4416ef81fd7d0843410d0fe *man/bigMatrix.Rd
 31a925dee8a00c16d2d7c5c7b575be47 *man/combineAnalyses.Rd
@@ -50,11 +50,11 @@ e5484e4e1a0f83bfb44fc9ef5549e40b *src/RcppExports.cpp
 576cf9c3c2022925d56b01cb2ba8f3ca *src/discProps.cpp
 fea2deb022e6771e9096c8da7770bf3a *src/interrupt.cpp
 b275203aad5cbe5b79337814ea751e28 *src/interrupt.h
-5a3f6034b5f3ec518819a732b5f6b73f *src/netStats.cpp
+a1c5c670257cdf8cdc53ab0705f1bcfd *src/netStats.cpp
 e7b13aedcf8bef5165edc3b122e983a6 *src/netStats.h
 187afcfc081fc0a2d9c4133cd5f8d8e3 *src/permutations.cpp
 62ad1c54c56ee542cf2b96ba6473ac46 *src/permutationsNoData.cpp
-3bc483d4f973c9db30b6dc4be162f2f5 *src/properties.cpp
+c1366cebc9963441e4b82766a5078ee6 *src/properties.cpp
 ee90ebaebd6e9a9ac685673ca128384f *src/scale.cpp
 e922976e1a33342fa96e3440c7ba0123 *src/scale.h
 51b002a0f6b563915535b82516589a4c *src/thread-utils.cpp
